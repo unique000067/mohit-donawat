@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Mohit Donawat — Super Pro Accountant Calculator (v3 • 2025)</title>
+
+<link rel="manifest" id="manifest-link">
+<script>
+const manifest = {
+  "name": "Mohit Donawat - Super Pro Accountant Calculator",
+  "short_name": "MD Calc Pro",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#00e5ff",
+  "icons": [
+    { "src": "mohit.jpg", "sizes": "192x192", "type": "image/jpeg" },
+    { "src": "mohit.jpg", "sizes": "512x512", "type": "image/jpeg" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type: "application/json"});
+const url = URL.createObjectURL(blob);
+document.getElementById("manifest-link").setAttribute("href", url);
+
+if ("serviceWorker" in navigator) {
+  const swCode = `
+    const CACHE = "md-calc-pro-v3";
+    self.addEventListener("install", e=>{
+      self.skipWaiting();
+      e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./mohit.jpg"])).catch(()=>{}));
+    });
+    self.addEventListener("activate", e=>{
+      e.waitUntil(
+        caches.keys().then(keys=>Promise.all(keys.map(k=>k!==CACHE && caches.delete(k))))
+      );
+      self.clients.claim();
+    });
+    self.addEventListener("fetch", e=>{
+      e.respondWith(
+        caches.match(e.request).then(r=>r || fetch(e.request).catch(()=>r)).catch(()=>fetch(e.request))
+      );
+    });
+  `;
+  const swBlob = new Blob([swCode], {type:"application/javascript"});
+  const swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+</script>
+
+<style>
+:root{
+  --bg:#05070d;
+  --glass:rgba(255,255,255,0.06);
+  --glass-2:rgba(255,255,255,0.03);
+  --text:#eaffff;
+  --muted:#8fd7ff;
+  --accent:#00e5ff;
+  --accent-dark:#00bcd4;
+  --danger:#ff3b6b;
+  --green:#00d77b;
+  --yellow:#ffc93c;
+  --shadow:0 0 20px rgba(0,255,255,0.08);
+  --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter, Arial, sans-serif;}
+html,body{background:var(--bg);color:var(--text);}
+body{
+  background:url('mohit.jpg') center/cover fixed no-repeat;
+}
+.hidden{display:none!important;}
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+}
+.app{
+  position:relative;z-index:1;max-width:1200px;margin:12px auto 80px;
+  background:rgba(0,0,0,0.6);border:1px solid var(--glass);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+}
+header{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:14px;border-bottom:1px solid var(--glass);
+  background:linear-gradient(120deg, rgba(0,229,255,0.18), rgba(0,188,212,0.05));
+}
+header h1{
+  font-size:18px;line-height:1.2;color:var(--accent);
+}
+header small{color:#9eeaff;font-size:12px;}
+header img{
+  width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);
+  box-shadow:0 0 12px rgba(0,229,255,0.3);
+}
+nav{
+  position:sticky;top:0;z-index:9;
+  display:flex;gap:6px;flex-wrap:nowrap;overflow:auto;
+  border-bottom:1px solid var(--glass);padding:8px;background:#020307e6;
+  backdrop-filter:blur(6px);
+}
+nav::-webkit-scrollbar{display:none;}
+nav button{
+  white-space:nowrap;border:none;border-radius:999px;padding:8px 12px;
+  background:var(--glass);color:#fff;box-shadow:var(--shadow);
+  font-weight:600;cursor:pointer;transition:.15s;font-size:13px;
+}
+nav button.active{
+  background:var(--accent);color:#000;
+}
+section{display:none;padding:14px 10px 60px;}
+section.active{display:block;animation:fade .2s;}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{
+  background:var(--glass-2);backdrop-filter:blur(2px);
+  border:1px solid var(--glass);
+  border-radius:14px;padding:12px;margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.title{
+  font-size:16px;font-weight:700;color:#8aeaff;margin-bottom:8px;
+}
+.subtitle{
+  font-size:14px;font-weight:600;color:#56dbff;margin:6px 0;
+}
+label{
+  display:block;margin:6px 0 4px;color:#9eeaff;font-size:12px;
+}
+input, select, textarea{
+  width:100%;padding:10px;border-radius:10px;border:2px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:#eaffff;font-size:15px;font-weight:600;
+  outline:none;transition:.2s;
+}
+input:focus, select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(0,229,255,0.08);
+}
+button.action{
+  width:100%;padding:12px;border:none;border-radius:12px;
+  background:var(--accent);color:#000;font-weight:700;font-size:15px;
+  margin-top:6px;box-shadow:var(--shadow);cursor:pointer;transition:.2s;
+}
+button.inline{
+  display:inline-block;width:auto;padding:8px 12px;margin:4px 6px 8px 0;
+  border:none;border-radius:10px;cursor:pointer;color:#fff;background:#003a5c;
+  font-size:13px;font-weight:600;
+}
+button.inline.danger{background:var(--danger);}
+button.inline.green{background:var(--green);color:#000;}
+button.inline.yellow{background:var(--yellow);color:#000;}
+
+.table-wrap{
+  border:1px solid var(--glass);border-radius:10px;overflow:auto;max-height:360px;
+}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th,td{border-bottom:1px solid rgba(255,255,255,0.06);padding:6px 8px;text-align:right;}
+th{text-align:center;background:#012433;color:#fff;position:sticky;top:0;z-index:1;}
+td:first-child, th:first-child{text-align:left;}
+
+.result-box{
+  background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:10px;padding:10px;margin-top:8px;white-space:pre-wrap;
+  font-family:Consolas, monospace;font-size:13px;line-height:1.5;
+}
+.flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));}
+
+/* Calculator UI */
+.screen{
+  background:#000;border-radius:12px;padding:10px;box-shadow:inset 0 0 15px rgba(0,255,255,0.05);
+  margin-bottom:10px;text-align:right;
+}
+.expr{font-size:14px;opacity:.6;min-height:20px;word-break:break-word;}
+.res{font-size:28px;font-weight:700;min-height:34px;word-break:break-word;}
+
+.keys{
+  display:grid;grid-template-columns:repeat(6, 1fr);gap:6px;
+}
+.key{
+  padding:14px 0;border:none;border-radius:10px;cursor:pointer;
+  background:#032337;color:#fff;font-size:15px;font-weight:600;transition:.05s;
+}
+.key.op{background:#053654;}
+.key.mem{background:#074c74;}
+.key.eq{background:var(--accent);color:#000;font-weight:800;}
+.key.danger{background:var(--danger);}
+.key:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.key.w2{grid-column:span 2;}
+.key.w3{grid-column:span 3;}
+
+footer{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#010308e6;backdrop-filter:blur(8px);
+  color:#6de9ff;text-align:center;font-size:11px;padding:6px 4px;border-top:1px solid var(--glass);
+}
+
+/* small devices */
+@media (max-width:480px){
+  header h1{font-size:16px;}
+  .keys{grid-template-columns:repeat(4, 1fr);}
+}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:rgba(255,255,255,0.02);border-radius:999px;}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.24);border-radius:999px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,0.4);}
+code{color:#00ffdf;}
+</style>
+</head>
+<body>
+<div class="overlay"></div>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>Mohit Donawat • Super Pro Accountant Calculator (v3)</h1>
+      <small>Bilingual Output • Offline • Export/Import/Print Everywhere</small>
+    </div>
+    <img src="mohit.jpg" alt="Mohit Donawat">
+  </header>
+
+  <nav id="tabs">
+    <button class="active" data-tab="calc">Calculator</button>
+    <button data-tab="finance">Finance (GST/TDS/IT/CI/SIP)</button>
+    <button data-tab="emi">EMI</button>
+    <button data-tab="payroll">Payroll</button>
+    <button data-tab="currency">Currency</button>
+    <button data-tab="time">World Time</button>
+    <button data-tab="age">Age / Dates</button>
+    <button data-tab="units">Units</button>
+    <button data-tab="history">Exports Center</button>
+  </nav>
+
+  <!-- ======================= CALCULATOR ======================= -->
+  <section class="active" id="calc">
+    <div class="card">
+      <div class="title">Normal + Scientific + TAX ± + GT + Memory + History (Export/Import/Print)</div>
+
+      <div class="screen">
+        <div class="expr" id="expr">0</div>
+        <div class="res" id="res">0</div>
+      </div>
+
+      <div class="flex" style="margin-bottom:8px;">
+        <label>Tax %</label>
+        <input style="width:100px" type="number" id="taxRate" value="18">
+        <label>DEC</label>
+        <select style="width:90px" id="decimalsSel">
+          <option>0</option><option selected>2</option><option>3</option><option>5</option>
+        </select>
+
+        <!-- Export Import Buttons -->
+        <button class="inline" onclick="exportCalcHistoryCSV()">CSV</button>
+        <button class="inline" onclick="exportCalcHistoryJSON()">JSON</button>
+        <button class="inline" onclick="printCalcHistory()">Print</button>
+        <input type="file" id="importHistory" accept=".json" class="hidden" onchange="importHistoryFile(event)">
+        <button class="inline" onclick="document.getElementById('importHistory').click()">Import</button>
+      </div>
+
+      <div class="keys">
+        <button class="key danger" onclick="ac()">AC</button>
+        <button class="key danger" onclick="backspace()">⌫</button>
+        <button class="key op" onclick="toggleSign()">±</button>
+        <button class="key op" onclick="percent()">%</button>
+        <button class="key op" onclick="sqrt()">√</button>
+        <button class="key op" onclick="pow2()">x²</button>
+
+        <button class="key mem" onclick="mc()">MC</button>
+        <button class="key mem" onclick="mr()">MR</button>
+        <button class="key mem" onclick="mplus()">M+</button>
+        <button class="key mem" onclick="mminus()">M-</button>
+        <button class="key mem" onclick="gt()">GT</button>
+        <button class="key op" onclick="pow3()">x³</button>
+
+        <button class="key op" onclick="ins('sin(')">sin</button>
+        <button class="key op" onclick="ins('cos(')">cos</button>
+        <button class="key op" onclick="ins('tan(')">tan</button>
+        <button class="key op" onclick="ins('log(')">log</button>
+        <button class="key op" onclick="ins('ln(')">ln</button>
+        <button class="key op" onclick="ins('Math.PI')">π</button>
+
+        <button class="key" onclick="append('7')">7</button>
+        <button class="key" onclick="append('8')">8</button>
+        <button class="key" onclick="append('9')">9</button>
+        <button class="key op" onclick="append('/')">÷</button>
+        <button class="key op" onclick="taxPlus()">TAX+</button>
+        <button class="key op" onclick="taxMinus()">TAX-</button>
+
+        <button class="key" onclick="append('4')">4</button>
+        <button class="key" onclick="append('5')">5</button>
+        <button class="key" onclick="append('6')">6</button>
+        <button class="key op" onclick="append('*')">×</button>
+        <button class="key op" onclick="ins('(')">(</button>
+        <button class="key op" onclick="ins(')')">)</button>
+
+        <button class="key" onclick="append('1')">1</button>
+        <button class="key" onclick="append('2')">2</button>
+        <button class="key" onclick="append('3')">3</button>
+        <button class="key op" onclick="append('-')">−</button>
+        <button class="key op" onclick="ic()">IC</button>
+        <button class="key op" onclick="pow()">xʸ</button>
+
+        <button class="key" onclick="append('0')">0</button>
+        <button class="key" onclick="append('00')">00</button>
+        <button class="key" onclick="append('000')">000</button>
+        <button class="key op" onclick="append('+')">+</button>
+        <button class="key op" onclick="append('.')">.</button>
+        <button class="key eq" onclick="eq()">=</button>
+      </div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">Status</div>
+        <div class="result-box" id="statusBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="title">History</div>
+        <div class="table-wrap">
+          <table id="histTable">
+            <thead><tr><th>#</th><th>Expr</th><th>=</th><th>Result</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearHistory()">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= FINANCE ======================= -->
+  <section id="finance">
+    <div class="card">
+      <div class="title">Finance (GST / TDS / Income‑Tax / Compound Interest / SIP)</div>
+
+      <!-- Export / Import buttons for finance module -->
+      <div class="flex">
+        <button class="inline" onclick="exportFinanceJSON()">Export JSON</button>
+        <button class="inline" onclick="exportFinanceCSV()">Export CSV</button>
+        <button class="inline" onclick="printFinance()">Print</button>
+        <input type="file" id="importFinance" accept=".json" class="hidden" onchange="importFinanceFile(event)">
+        <button class="inline" onclick="document.getElementById('importFinance').click()">Import JSON</button>
+      </div>
+
+      <div class="grid" style="margin-top:8px;">
+        <!-- GST -->
+        <div class="card">
+          <div class="title">GST (Exclusive ↔ Inclusive)</div>
+          <label>Base (Exclusive)</label><input type="number" id="gstBase">
+          <label>Gross (Inclusive)</label><input type="number" id="gstGross">
+          <label>GST %</label>
+          <select id="gstRate">
+            <option value="5">5%</option><option value="12">12%</option>
+            <option value="18" selected>18%</option><option value="28">28%</option>
+          </select>
+          <div class="flex">
+            <button class="inline" onclick="gstFromBase()">Base → Inclusive</button>
+            <button class="inline" onclick="gstFromGross()">Inclusive → Base</button>
+            <button class="inline yellow" onclick="gstTableMulti()">Multi</button>
+          </div>
+          <div class="result-box" id="gstOut"></div>
+        </div>
+
+        <!-- TDS -->
+        <div class="card">
+          <div class="title">TDS / TCS</div>
+          <label>Gross</label><input type="number" id="tdsGross">
+          <label>Net</label><input type="number" id="tdsNet">
+          <label>Section</label><select id="tdsSection"></select>
+          <label>Custom Rate %</label><input type="number" id="tdsRate">
+          <div class="flex">
+            <button class="inline" onclick="tdsGrossToNet()">Gross → Net</button>
+            <button class="inline" onclick="tdsNetToGross()">Net → Gross</button>
+          </div>
+          <div class="result-box" id="tdsOut"></div>
+        </div>
+
+        <!-- Income Tax -->
+        <div class="card">
+          <div class="title">Income Tax (approx slabs)</div>
+          <label>Total Income (₹)</label><input type="number" id="itIncome">
+          <label>Deductions (old regime)</label><input type="number" id="itDeduction" value="0">
+          <label>Regime</label>
+          <select id="itRegime">
+            <option value="new" selected>New</option>
+            <option value="old">Old</option>
+          </select>
+          <button class="action" onclick="calcIncomeTax()">Calculate</button>
+          <div class="result-box" id="itOut"></div>
+        </div>
+
+        <!-- Compound Interest -->
+        <div class="card">
+          <div class="title">Compound Interest</div>
+          <label>Principal (₹)</label><input type="number" id="ciP">
+          <label>Rate % (p.a.)</label><input type="number" id="ciR" value="8">
+          <label>Years</label><input type="number" id="ciY" value="5">
+          <label>Compounds / year</label>
+          <select id="ciN">
+            <option value="1">Yearly</option><option value="4">Quarterly</option>
+            <option value="12" selected>Monthly</option><option value="365">Daily</option>
+          </select>
+          <button class="action" onclick="compoundInterest()">Calculate</button>
+          <div class="result-box" id="ciOut"></div>
+        </div>
+
+        <!-- SIP / Lumpsum -->
+        <div class="card">
+          <div class="title">SIP / Lumpsum</div>
+          <label>Mode</label>
+          <select id="sipMode">
+            <option value="sip" selected>SIP (Monthly)</option>
+            <option value="lumpsum">Lumpsum</option>
+          </select>
+          <label>Amount (₹)</label><input type="number" id="sipAmount" value="10000">
+          <label>Rate % p.a.</label><input type="number" id="sipRate" value="12">
+          <label>Years</label><input type="number" id="sipYears" value="10">
+          <div class="flex">
+            <button class="inline" onclick="calcSIP()">Calculate</button>
+            <button class="inline green" onclick="exportSIPTableCSV()">CSV</button>
+            <button class="inline" onclick="printSIPTable()">Print</button>
+            <button class="inline" onclick="exportSIPTableJSON()">JSON</button>
+            <input type="file" id="importSIP" accept=".json" class="hidden" onchange="importSIPFile(event)">
+            <button class="inline" onclick="document.getElementById('importSIP').click()">Import</button>
+          </div>
+          <div class="result-box" id="sipOut"></div>
+          <div id="sipTableWrap" class="table-wrap" style="display:none">
+            <table id="sipTable"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Finance History (सब कुछ)</div>
+        <div class="table-wrap">
+          <table id="finHistTable">
+            <thead><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearFinanceHistory()">Clear Finance History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= EMI ======================= -->
+  <section id="emi">
+    <div class="card">
+      <div class="title">EMI with Prepayment + Export/Import</div>
+      <label>Principal (₹)</label><input type="number" id="emiP2" value="1000000">
+      <label>Rate % p.a.</label><input type="number" id="emiR2" value="10">
+      <label>Tenure (months)</label><input type="number" id="emiT2" value="240">
+      <label>Prepayment (₹)</label><input type="number" id="prepayAmt" value="0">
+      <label>Prepay Month #</label><input type="number" id="prepayMonth" value="0">
+      <label><input type="checkbox" id="emiShowTable2" checked> Show table</label>
+      <div class="flex">
+        <button class="inline" onclick="emiPrepayCalc()">Calculate</button>
+        <button class="inline green" onclick="exportEmiTableCSV()">CSV</button>
+        <button class="inline" onclick="exportEmiTableJSON()">JSON</button>
+        <button class="inline" onclick="printEmiTable()">Print</button>
+        <input type="file" id="importEmi" accept=".json" class="hidden" onchange="importEmiFile(event)">
+        <button class="inline" onclick="document.getElementById('importEmi').click()">Import</button>
+      </div>
+      <div class="result-box" id="emiOut2"></div>
+      <div id="emiTableWrap2" class="table-wrap" style="display:none;">
+        <table id="emiTable2"></table>
+      </div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">EMI History</div>
+        <div class="table-wrap">
+          <table id="emiHistTable">
+            <thead><tr><th>#</th><th>Params</th><th>EMI</th><th>Months</th><th>Total Interest</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearEmiHistory()">Clear EMI History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= PAYROLL ======================= -->
+  <section id="payroll">
+    <div class="card">
+      <div class="title">Payroll • PF/EPF/ESIC • Payslip (Export/Import/Print)</div>
+      <label>Name</label><input type="text" id="empName" value="Employee A">
+      <label>Basic (₹)</label><input type="number" id="basicSal" value="25000">
+      <label>HRA (₹)</label><input type="number" id="hra" value="10000">
+      <label>DA (₹)</label><input type="number" id="da" value="0">
+      <label>Other Allowances (₹)</label><input type="number" id="otherAllow" value="5000">
+      <label>PF % (Emp)</label><input type="number" id="pfPct" value="12">
+      <label>PF % (Er)</label><input type="number" id="pfPctEr" value="12">
+      <label>ESIC Emp %</label><input type="number" id="esicEmp" value="0.75">
+      <label>ESIC Er %</label><input type="number" id="esicEr" value="3.25">
+      <div class="flex">
+        <button class="inline" onclick="calcPayroll()">Calculate</button>
+        <button class="inline green" onclick="printPayslip()">Print Payslip</button>
+        <button class="inline" onclick="exportPayrollJSON()">Export JSON</button>
+        <button class="inline" onclick="exportPayrollCSV()">Export CSV</button>
+        <input type="file" id="importPayroll" accept=".json" class="hidden" onchange="importPayrollFile(event)">
+        <button class="inline" onclick="document.getElementById('importPayroll').click()">Import</button>
+      </div>
+      <div class="result-box" id="payrollOut"></div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">Payroll History</div>
+        <div class="table-wrap">
+          <table id="payrollHistTable">
+            <thead><tr><th>#</th><th>Name</th><th>Gross</th><th>Net</th><th>CTC</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearPayrollHistory()">Clear Payroll History</button>
+      </div>
+
+      <div id="payslipPrint" class="hidden"></div>
+    </div>
+  </section>
+
+  <!-- ======================= CURRENCY ======================= -->
+  <section id="currency">
+    <div class="card">
+      <div class="title">Currency Converter (Export/Import/Print)</div>
+      <div class="flex">
+        <button class="inline" onclick="exportCurrencyHistoryJSON()">Export JSON</button>
+        <button class="inline" onclick="exportCurrencyHistoryCSV()">Export CSV</button>
+        <button class="inline" onclick="printCurrencyHistory()">Print</button>
+        <input type="file" id="importCurrency" accept=".json" class="hidden" onchange="importCurrencyFile(event)">
+        <button class="inline" onclick="document.getElementById('importCurrency').click()">Import JSON</button>
+      </div>
+
+      <div class="grid" style="margin-top:8px;">
+        <div>
+          <label>Amount</label><input type="number" id="curAmount" value="100">
+        </div>
+        <div>
+          <label>From</label>
+          <select id="curFrom"></select>
+        </div>
+        <div>
+          <label>To</label>
+          <select id="curTo"></select>
+        </div>
+      </div>
+      <div class="flex">
+        <button class="inline" onclick="swapCurrencies()">⇄ Swap</button>
+        <button class="inline" onclick="convertCurrency()">Convert</button>
+        <button class="inline yellow" onclick="tryLiveSymbols()">Live Symbols</button>
+      </div>
+      <div class="result-box" id="curOut"></div>
+
+      <div class="subtitle" style="margin-top:10px;">Multi Target</div>
+      <label>Targets (e.g. INR,EUR,AED)</label>
+      <input type="text" id="curTargets" value="INR,EUR,AED">
+      <button class="inline" onclick="convertMulti()">Convert Multi</button>
+      <div class="result-box" id="curMultiOut"></div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">Currency History</div>
+        <div class="table-wrap">
+          <table id="curHistTable">
+            <thead><tr><th>#</th><th>From</th><th>To / Multi</th><th>Amount</th><th>Result</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearCurrencyHistory()">Clear Currency History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= WORLD TIME ======================= -->
+  <section id="time">
+    <div class="card">
+      <div class="title">World Time (Export/Import/Print)</div>
+      <div class="flex">
+        <button class="inline" onclick="exportTimeHistoryJSON()">Export JSON</button>
+        <button class="inline" onclick="exportTimeHistoryCSV()">Export CSV</button>
+        <button class="inline" onclick="printTimeHistory()">Print</button>
+        <input type="file" id="importTime" accept=".json" class="hidden" onchange="importTimeFile(event)">
+        <button class="inline" onclick="document.getElementById('importTime').click()">Import</button>
+      </div>
+
+      <div class="grid" style="margin-top:8px;">
+        <div>
+          <label>Timezone 1</label><input id="tz1" value="Asia/Kolkata">
+          <label>Timezone 2</label><input id="tz2" value="Europe/London">
+          <button class="inline" onclick="compareTimezones()">Compare</button>
+          <div class="result-box" id="tzCompareOut"></div>
+        </div>
+        <div>
+          <label>Meeting Base TZ</label><input id="meetBase" value="Asia/Kolkata">
+          <label>Time (HH:MM 24h)</label><input id="meetTime" value="12:00">
+          <label>Others (comma)</label><input id="meetZones" value="Europe/London,America/New_York,Asia/Dubai">
+          <button class="inline" onclick="meetingPlanner()">Plan</button>
+          <div class="result-box" id="meetOut"></div>
+        </div>
+      </div>
+
+      <div class="subtitle">Pinned Cities</div>
+      <button class="inline" onclick="pinDefaults()">Pin</button>
+      <button class="inline danger" onclick="clearPins()">Clear</button>
+      <div class="result-box" id="pinOut"></div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">World Time History</div>
+        <div class="table-wrap">
+          <table id="timeHistTable">
+            <thead><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearTimeHistory()">Clear Time History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= AGE / DATES ======================= -->
+  <section id="age">
+    <div class="card">
+      <div class="title">Age / Date Tools (Export/Import/Print)</div>
+      <div class="flex">
+        <button class="inline" onclick="exportAgeHistoryJSON()">Export JSON</button>
+        <button class="inline" onclick="exportAgeHistoryCSV()">Export CSV</button>
+        <button class="inline" onclick="printAgeHistory()">Print</button>
+        <input type="file" id="importAge" accept=".json" class="hidden" onchange="importAgeFile(event)">
+        <button class="inline" onclick="document.getElementById('importAge').click()">Import</button>
+      </div>
+
+      <div class="grid" style="margin-top:8px;">
+        <div class="card">
+          <div class="title">Age Calculator</div>
+          <label>DOB</label><input type="date" id="dob">
+          <button class="inline" onclick="calcAge()">Age Now</button>
+          <label>Future Date</label><input type="date" id="futureDate">
+          <button class="inline" onclick="futureAge()">Age on Future</button>
+          <div class="result-box" id="ageOut"></div>
+        </div>
+        <div class="card">
+          <div class="title">Date Diff / Countdown</div>
+          <label>From</label><input type="date" id="d1">
+          <label>To</label><input type="date" id="d2">
+          <div class="flex">
+            <button class="inline" onclick="dateDiff()">Difference</button>
+            <button class="inline" onclick="countdown()">Countdown</button>
+          </div>
+          <div class="result-box" id="diffOut"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Age / Date History</div>
+        <div class="table-wrap">
+          <table id="ageHistTable">
+            <thead><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearAgeHistory()">Clear Age History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= UNITS ======================= -->
+  <section id="units">
+    <div class="card">
+      <div class="title">Unit Converter (Export/Import/Print)</div>
+      <div class="flex">
+        <button class="inline" onclick="exportUnitHistoryJSON()">Export JSON</button>
+        <button class="inline" onclick="exportUnitHistoryCSV()">Export CSV</button>
+        <button class="inline" onclick="printUnitHistory()">Print</button>
+        <input type="file" id="importUnits" accept=".json" class="hidden" onchange="importUnitFile(event)">
+        <button class="inline" onclick="document.getElementById('importUnits').click()">Import</button>
+      </div>
+
+      <div class="flex" style="margin-top:8px;">
+        <label>Category</label><select id="unitCategory"></select>
+        <label>From</label><select id="unitFrom"></select>
+        <label>To</label><select id="unitTo"></select>
+      </div>
+      <label>Value</label><input type="number" id="unitValue" value="1">
+      <div class="flex">
+        <button class="inline" onclick="swapUnits()">⇄ Swap</button>
+        <button class="inline" onclick="convertUnit()">Convert</button>
+        <button class="inline green" onclick="bighaQuickTable()">Bigha Table</button>
+      </div>
+      <div class="result-box" id="unitOut"></div>
+      <div id="unitTableWrap" class="table-wrap" style="display:none">
+        <table id="unitTable"></table>
+      </div>
+
+      <div class="card" style="margin-top:10px;">
+        <div class="title">Units History</div>
+        <div class="table-wrap">
+          <table id="unitHistTable">
+            <thead><tr><th>#</th><th>Cat</th><th>Value</th><th>From→To</th><th>Result</th><th>Time</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="inline danger" onclick="clearUnitHistory()">Clear Units History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= EXPORT CENTER ======================= -->
+  <section id="history">
+    <div class="card">
+      <div class="title">Central Export / Print Hub</div>
+      <div class="grid">
+        <div class="card">
+          <div class="subtitle">Calculator</div>
+          <button class="inline" onclick="exportCalcHistoryCSV()">CSV</button>
+          <button class="inline" onclick="exportCalcHistoryJSON()">JSON</button>
+          <button class="inline" onclick="printCalcHistory()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">Finance</div>
+          <button class="inline" onclick="exportFinanceCSV()">CSV</button>
+          <button class="inline" onclick="exportFinanceJSON()">JSON</button>
+          <button class="inline" onclick="printFinance()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">EMI</div>
+          <button class="inline" onclick="exportEmiTableCSV()">CSV</button>
+          <button class="inline" onclick="exportEmiTableJSON()">JSON</button>
+          <button class="inline" onclick="printEmiTable()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">SIP</div>
+          <button class="inline" onclick="exportSIPTableCSV()">CSV</button>
+          <button class="inline" onclick="exportSIPTableJSON()">JSON</button>
+          <button class="inline" onclick="printSIPTable()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">Payroll</div>
+          <button class="inline" onclick="exportPayrollCSV()">CSV</button>
+          <button class="inline" onclick="exportPayrollJSON()">JSON</button>
+          <button class="inline" onclick="printPayslip()">Print Payslip</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">Currency</div>
+          <button class="inline" onclick="exportCurrencyHistoryCSV()">CSV</button>
+          <button class="inline" onclick="exportCurrencyHistoryJSON()">JSON</button>
+          <button class="inline" onclick="printCurrencyHistory()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">World Time</div>
+          <button class="inline" onclick="exportTimeHistoryCSV()">CSV</button>
+          <button class="inline" onclick="exportTimeHistoryJSON()">JSON</button>
+          <button class="inline" onclick="printTimeHistory()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">Age / Dates</div>
+          <button class="inline" onclick="exportAgeHistoryCSV()">CSV</button>
+          <button class="inline" onclick="exportAgeHistoryJSON()">JSON</button>
+          <button class="inline" onclick="printAgeHistory()">Print</button>
+        </div>
+        <div class="card">
+          <div class="subtitle">Units</div>
+          <button class="inline" onclick="exportUnitHistoryCSV()">CSV</button>
+          <button class="inline" onclick="exportUnitHistoryJSON()">JSON</button>
+          <button class="inline" onclick="printUnitHistory()">Print</button>
+        </div>
+      </div>
+      <div class="result-box">
+LocalStorage में हर मॉड्यूल का history सुरक्षित है। Browser बदलते समय JSON export–import कर लो. सब modules के लिए Print/CSV/JSON बटन ऊपर दिये हैं।
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Mohit Donawat — Offline PWA • Export/Import Everywhere • v3
+  </footer>
+</div>
+
+<script>
+/* ---------------- NAV ---------------- */
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* F2 = Jump to Calculator tab */
+window.addEventListener('keydown', e=>{
+  if(e.key === 'F2'){
+    document.querySelector('#tabs button[data-tab="calc"]').click();
+  }
+});
+
+/* Small helper exports (universal) */
+function downloadFile(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+function printHTMLDoc(title, html){
+  const w = window.open("", "_blank");
+  w.document.write(`<html><head><title>${title}</title></head><body>${html}</body></html>`);
+  w.document.close();
+  w.print();
+  w.close();
+}
+
+/* ===================================================================
+   CALCULATOR + Export/Import
+=================================================================== */
+let expr = "";
+let last = 0;
+let mem = 0;
+let gt_total = 0;
+let tax_rate = 18;
+let decimals = 2;
+let ic_count = 0;
+let history = JSON.parse(localStorage.getItem("mohit_calc_history")||"[]").slice(0,100);
+
+const exprEl = document.getElementById("expr");
+const resEl  = document.getElementById("res");
+const statusBox = document.getElementById("statusBox");
+const histTableBody = document.querySelector("#histTable tbody");
+document.getElementById("decimalsSel").addEventListener("change", e=>{
+  decimals = parseInt(e.target.value,10);
+  updateScreen();
+});
+function fmt(n, d=decimals){
+  if(typeof n !== "number" || !isFinite(n)) return "NaN";
+  return n.toLocaleString(undefined, {maximumFractionDigits:d});
+}
+function updateScreen(){
+  exprEl.textContent = expr || "0";
+  resEl.textContent = isNaN(last) ? "Error" : (typeof last === "number" ? Number(last).toLocaleString(undefined,{maximumFractionDigits:decimals}) : last);
+  statusBox.textContent =
+`Memory: ${fmt(mem)}
+Grand Total: ${fmt(gt_total)}
+IC: ${ic_count}
+Tax Rate: ${tax_rate}%
+Decimals: ${decimals}
+
+Hint (Hindi/English):
+• '=' दबाने पर पूरा expression history में सेव होगा.
+• TAX+: Adds tax (inclusive)
+• TAX-: Inclusive value से base (exclusive) निकालेगा.
+• DEC: Output decimal places (0/2/3/5)
+• Scientific: sin, cos, tan, log, ln, π, e, x², x³, xʸ
+• GT: पूरे दिन के सभी results का grand total
+• Memory: M+, M-, MR, MC`;
+
+  renderHistory();
+  localStorage.setItem("mohit_calc_history", JSON.stringify(history.slice(0,100)));
+}
+function toMathCtx(e){
+  return e
+    .replace(/sin\(/g, "Math.sin(")
+    .replace(/cos\(/g, "Math.cos(")
+    .replace(/tan\(/g, "Math.tan(")
+    .replace(/log\(/g, "Math.log10(")
+    .replace(/ln\(/g,  "Math.log(")
+    .replace(/π/g, "Math.PI");
+}
+function safeEval(e){
+  try{
+    let clean = e.replace(/[^0-9+\-*/().%^ ,a-zA-Z]/g,"");
+    clean = toMathCtx(clean).replace(/\^/g,"**").replace(/%/g,"/100");
+    const v = Function('"use strict";return('+clean+')')();
+    return (typeof v === "number" && isFinite(v)) ? v : NaN;
+  }catch{return NaN;}
+}
+function append(v){ expr += v; last = safeEval(expr) || 0; updateScreen(); }
+function ins(v){ expr += v; updateScreen(); }
+function pow(){ expr += "**"; updateScreen(); }
+function pow2(){ const v = safeEval(expr); if(!isNaN(v)){ last = v*v; expr = last.toString(); updateScreen(); } }
+function pow3(){ const v = safeEval(expr); if(!isNaN(v)){ last = v*v*v; expr = last.toString(); updateScreen(); } }
+function pushHistory(expression, result){
+  history.unshift({expression, result, ts: new Date().toISOString()});
+  if(history.length > 100) history.pop();
+}
+function renderHistory(){
+  histTableBody.innerHTML = "";
+  history.forEach((h,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td><td>${h.expression}</td><td>=</td><td>${fmt(h.result,8)}</td>`;
+    tr.addEventListener("click", ()=>{ expr = h.result.toString(); last = h.result; updateScreen(); });
+    histTableBody.appendChild(tr);
+  });
+}
+function clearHistory(){ history = []; updateScreen(); }
+function eq(){
+  const v = safeEval(expr);
+  if(!isNaN(v)){
+    last = Number(v.toFixed(decimals));
+    pushHistory(expr, last);
+    expr = last.toString();
+    gt_total += v;
+    updateScreen();
+  } else{
+    last = NaN;
+    updateScreen();
+  }
+}
+function ac(){ expr=""; last=0; updateScreen(); }
+function backspace(){ expr = expr.slice(0,-1); last = safeEval(expr)||0; updateScreen(); }
+function toggleSign(){ const v = safeEval(expr); if(!isNaN(v)){ last = -v; expr = last.toString(); updateScreen(); } }
+function percent(){ const v = safeEval(expr); if(!isNaN(v)){ last = v/100; expr = last.toString(); updateScreen(); } }
+function sqrt(){ const v = safeEval(expr); if(!isNaN(v) && v >= 0){ last = Math.sqrt(v); expr = last.toString(); updateScreen(); } }
+function mc(){ mem = 0; updateScreen(); }
+function mr(){ expr = mem.toString(); last = mem; updateScreen(); }
+function mplus(){ mem += last||0; updateScreen(); }
+function mminus(){ mem -= last||0; updateScreen(); }
+function gt(){ expr = gt_total.toString(); last = gt_total; updateScreen(); }
+function setTaxRate(){ const r = parseFloat(document.getElementById("taxRate").value); if(!isNaN(r)) tax_rate = r; updateScreen(); }
+function taxPlus(){ const v = safeEval(expr); if(!isNaN(v)){ const t = v * (1 + tax_rate/100); last = t; expr = t.toFixed(decimals); updateScreen(); } }
+function taxMinus(){ const v = safeEval(expr); if(!isNaN(v)){ const b = v * 100 / (100 + tax_rate); last = b; expr = b.toFixed(decimals); updateScreen(); } }
+function ic(){ ic_count++; updateScreen(); }
+updateScreen();
+window.addEventListener('keydown', e=>{
+  const k = e.key;
+  if(/[0-9.+\-*/()%]/.test(k)) append(k);
+  else if(k === 'Enter'){ e.preventDefault(); eq(); }
+  else if(k === 'Backspace'){ backspace(); }
+  else if(k.toLowerCase() === 'c'){ ac(); }
+});
+function exportCalcHistoryCSV(){
+  if(!history.length) return alert("No history");
+  const rows = [["#", "Expression", "Result", "Timestamp"]];
+  history.forEach((h,i)=> rows.push([i+1, `"${h.expression.replace(/"/g,'""')}"`, h.result, h.ts]));
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  downloadFile(csv, "calc_history.csv", "text/csv");
+}
+function exportCalcHistoryJSON(){
+  const data = JSON.stringify(history, null, 2);
+  downloadFile(data, "calc_history.json", "application/json");
+}
+function printCalcHistory(){
+  if(!history.length){alert("No history");return;}
+  let html = `<h2>Calculator History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Expression</th><th>=</th><th>Result</th><th>Timestamp</th></tr>`;
+  history.forEach((h,i)=>{
+    html += `<tr><td>${i+1}</td><td>${h.expression}</td><td>=</td><td>${h.result}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("Calc History", html);
+}
+function importHistoryFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = evt=>{
+    try{
+      const data = JSON.parse(evt.target.result);
+      if(Array.isArray(data)){
+        history = data.concat(history).slice(0,100);
+        updateScreen();
+        alert("Imported!");
+      }else alert("Invalid JSON");
+    }catch(err){ alert("Invalid file"); }
+  };
+  reader.readAsText(file);
+}
+
+/* ===================================================================
+   FINANCE (History + Export/Import)
+=================================================================== */
+let financeHistory = JSON.parse(localStorage.getItem("md_finance_history")||"[]");
+const finHistBody = document.querySelector("#finHistTable tbody");
+function pushFin(type, input, output){
+  financeHistory.unshift({type, input, output, ts:new Date().toISOString()});
+  financeHistory = financeHistory.slice(0,300);
+  localStorage.setItem("md_finance_history", JSON.stringify(financeHistory));
+  renderFinHist();
+}
+function renderFinHist(){
+  finHistBody.innerHTML = "";
+  financeHistory.forEach((r,i)=>{
+    finHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${r.type}</td><td>${escapeHTML(JSON.stringify(r.input))}</td><td>${escapeHTML((r.output||"").toString().substring(0,120))}</td><td>${new Date(r.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearFinanceHistory(){
+  financeHistory = [];
+  localStorage.setItem("md_finance_history","[]");
+  renderFinHist();
+}
+function exportFinanceJSON(){
+  downloadFile(JSON.stringify(financeHistory,null,2),"finance_history.json","application/json");
+}
+function exportFinanceCSV(){
+  const rows = [["#","Type","Input","Output","Timestamp"]];
+  financeHistory.forEach((r,i)=>rows.push([i+1, r.type, JSON.stringify(r.input).replace(/"/g,'""'), (r.output||"").toString().replace(/"/g,'""'), r.ts]));
+  downloadFile(rows.map(r=>r.join(",")).join("\n"), "finance_history.csv", "text/csv");
+}
+function printFinance(){
+  let html = `<h2>Finance History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr>`;
+  financeHistory.forEach((r,i)=>{
+    html += `<tr><td>${i+1}</td><td>${r.type}</td><td>${escapeHTML(JSON.stringify(r.input))}</td><td>${escapeHTML(r.output)}</td><td>${new Date(r.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("Finance History", html);
+}
+function importFinanceFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        financeHistory = j.concat(financeHistory).slice(0,300);
+        localStorage.setItem("md_finance_history", JSON.stringify(financeHistory));
+        renderFinHist();
+        alert("Finance history imported");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON file"); }
+  };
+  reader.readAsText(f);
+}
+function escapeHTML(s){ return (s||"").toString().replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])) }
+
+/* GST */
+function gstFromBase(){
+  const base = parseFloat(document.getElementById("gstBase").value||0);
+  const rate = parseFloat(document.getElementById("gstRate").value||18);
+  let out;
+  if(!base){ out="Enter Base"; document.getElementById("gstOut").textContent=out; return; }
+  const gst = base * rate/100;
+  const total = base + gst;
+  const cgst = gst/2, sgst = gst/2;
+  out =
+`Base (बेस): ₹${base.toFixed(2)}
+GST @${rate}%: ₹${gst.toFixed(2)}
+CGST: ₹${cgst.toFixed(2)}, SGST: ₹${sgst.toFixed(2)}
+Total (कुल): ₹${total.toFixed(2)}
+
+English:
+Base: ₹${base.toFixed(2)}, GST: ₹${gst.toFixed(2)}, Total: ₹${total.toFixed(2)}`;
+  document.getElementById("gstOut").textContent = out;
+  pushFin("GST-Base→Gross", {base, rate}, out);
+}
+function gstFromGross(){
+  const gross = parseFloat(document.getElementById("gstGross").value||0);
+  const rate = parseFloat(document.getElementById("gstRate").value||18);
+  let out;
+  if(!gross){ out="Enter Gross"; document.getElementById("gstOut").textContent=out; return; }
+  const base = gross * 100 / (100 + rate);
+  const gst  = gross - base;
+  const cgst = gst/2, sgst = gst/2;
+  out =
+`Gross: ₹${gross.toFixed(2)}
+Base: ₹${base.toFixed(2)}
+GST @${rate}%: ₹${gst.toFixed(2)}
+CGST: ₹${cgst.toFixed(2)}, SGST: ₹${sgst.toFixed(2)}`;
+  document.getElementById("gstOut").textContent = out;
+  pushFin("GST-Gross→Base", {gross, rate}, out);
+}
+function gstTableMulti(){
+  const base = parseFloat(document.getElementById("gstBase").value||0);
+  if(!base){ document.getElementById("gstOut").textContent="Enter Base amount"; return; }
+  const slabs = [5,12,18,28];
+  let s = "Multi Slab:\n";
+  slabs.forEach(r=>{
+    const gst = base * r/100;
+    const total = base + gst;
+    s += `${r}%: GST ₹${gst.toFixed(2)}, Total ₹${total.toFixed(2)}\n`;
+  });
+  document.getElementById("gstOut").textContent = s;
+  pushFin("GST-Multi", {base}, s);
+}
+
+/* TDS */
+const TDS_RATES = {
+  "194C - Contractor (Individual/HUF) - 1%": 1,
+  "194C - Contractor (Others) - 2%": 2,
+  "194H - Commission/Brokerage - 5%": 5,
+  "194J - Professional Fees - 10%": 10,
+  "194IA - Immovable Property - 1%": 1,
+  "194IB - Rent (Ind/HUF > 50k pm) - 5%": 5,
+  "194M - Ind/HUF (contract/prof > 50L) - 5%": 5,
+  "194Q - Purchase of goods - 0.1%": 0.1,
+  "206C(1H) - TCS on Sales > 50L - 0.1%": 0.1
+};
+(function fillTDS(){
+  const sel = document.getElementById("tdsSection");
+  Object.keys(TDS_RATES).forEach(k=>{
+    const o = new Option(k,k);
+    sel.add(o);
+  });
+  renderFinHist();
+})();
+function tdsGrossToNet(){
+  const gross = parseFloat(document.getElementById("tdsGross").value||0);
+  const sec   = document.getElementById("tdsSection").value;
+  let rate    = parseFloat(document.getElementById("tdsRate").value||0);
+  if(!rate) rate = TDS_RATES[sec] || 0;
+  const tds   = gross * rate / 100;
+  const net   = gross - tds;
+  const out =
+`Section: ${sec}
+Rate: ${rate}%
+Gross (ग्रॉस): ₹${gross.toFixed(2)}
+TDS: ₹${tds.toFixed(2)}
+Net (नेट): ₹${net.toFixed(2)}`;
+  document.getElementById("tdsOut").textContent = out;
+  pushFin("TDS-Gross→Net", {gross,sec,rate}, out);
+}
+function tdsNetToGross(){
+  const net  = parseFloat(document.getElementById("tdsNet").value||0);
+  const sec  = document.getElementById("tdsSection").value;
+  let rate   = parseFloat(document.getElementById("tdsRate").value||0);
+  if(!rate) rate = TDS_RATES[sec] || 0;
+  const gross = net / (1 - rate/100);
+  const tds   = gross - net;
+  const out =
+`Section: ${sec}
+Rate: ${rate}%
+Net: ₹${net.toFixed(2)}
+Gross: ₹${gross.toFixed(2)}
+TDS: ₹${tds.toFixed(2)}`;
+  document.getElementById("tdsOut").textContent = out;
+  pushFin("TDS-Net→Gross", {net,sec,rate}, out);
+}
+
+/* Income Tax */
+function calcIncomeTax(){
+  const income = parseFloat(document.getElementById("itIncome").value||0);
+  const ded    = parseFloat(document.getElementById("itDeduction").value||0);
+  const regime = document.getElementById("itRegime").value;
+  if(!income){ document.getElementById("itOut").textContent="Enter income"; return; }
+
+  let tax = 0, slabs = [];
+  if(regime==="new"){
+    const s = [
+      {upto:300000, rate:0},
+      {upto:600000, rate:5},
+      {upto:900000, rate:10},
+      {upto:1200000, rate:15},
+      {upto:1500000, rate:20},
+      {upto:Infinity, rate:30}
+    ];
+    let rem = income, lower = 0;
+    s.forEach(sl=>{
+      const amt = Math.max(0, Math.min(rem, sl.upto - lower));
+      if(amt>0){
+        const t = amt*sl.rate/100;
+        slabs.push({range:`${lower}–${sl.upto}`, rate:sl.rate, amount:amt, tax:t});
+        tax += t;
+      }
+      rem -= amt; lower = sl.upto;
+    });
+    if(income<=700000) tax = 0;
+  }else{
+    const taxable = Math.max(0, income - ded);
+    const s = [
+      {upto:250000, rate:0},
+      {upto:500000, rate:5},
+      {upto:1000000, rate:20},
+      {upto:Infinity, rate:30}
+    ];
+    let rem = taxable, lower = 0;
+    s.forEach(sl=>{
+      const amt = Math.max(0, Math.min(rem, sl.upto - lower));
+      if(amt>0){
+        const t = amt*sl.rate/100;
+        slabs.push({range:`${lower}–${sl.upto}`, rate:sl.rate, amount:amt, tax:t});
+        tax += t;
+      }
+      rem -= amt; lower = sl.upto;
+    });
+    if(taxable<=500000) tax = 0;
+  }
+  const cess = tax*0.04;
+  const total = tax + cess;
+  let out = `Regime: ${regime.toUpperCase()}
+Income (आय): ₹${income.toFixed(2)}
+
+Slab wise:
+`;
+  slabs.forEach(s=>{
+    out += `${s.range} @${s.rate}% on ₹${s.amount.toFixed(0)} = ₹${s.tax.toFixed(2)}\n`;
+  });
+  out += `
+Tax: ₹${tax.toFixed(2)}
+Cess 4%: ₹${cess.toFixed(2)}
+Total: ₹${total.toFixed(2)} (Approx)`;
+
+  document.getElementById("itOut").textContent = out;
+  pushFin("IncomeTax", {income, ded, regime}, out);
+}
+
+/* Compound Interest */
+function compoundInterest(){
+  const P = parseFloat(document.getElementById("ciP").value||0);
+  const R = parseFloat(document.getElementById("ciR").value||0)/100;
+  let   Y = parseFloat(document.getElementById("ciY").value||0);
+  const n = parseInt(document.getElementById("ciN").value,10);
+  if(Y>50) Y = 50;
+  const A = P * Math.pow((1 + R/n), n*Y);
+  const interest = A - P;
+  const out =
+`Principal (मूलधन): ₹${P.toFixed(2)}
+Maturity: ₹${A.toFixed(2)}
+Interest: ₹${interest.toFixed(2)}
+(Compounds/year: ${n}, Years: ${Y})`;
+  document.getElementById("ciOut").textContent = out;
+  pushFin("CompoundInterest", {P,R:Y,Y,n}, out);
+}
+
+/* SIP / Lumpsum */
+let sipTableCache = [];
+function calcSIP(){
+  const mode = document.getElementById("sipMode").value;
+  const amt  = parseFloat(document.getElementById("sipAmount").value||0);
+  const rate = parseFloat(document.getElementById("sipRate").value||0)/100;
+  const yrs  = parseFloat(document.getElementById("sipYears").value||0);
+  const m = yrs*12;
+  let maturity=0, invest=0, gain=0;
+  sipTableCache = [];
+
+  if(mode==="sip"){
+    const i = rate/12;
+    maturity = amt * ((Math.pow(1+i, m)-1)/i) * (1+i);
+    invest = amt * m;
+    gain = maturity - invest;
+    for(let k=1;k<=m;k++){
+      const val = amt * ((Math.pow(1+i, k)-1)/i) * (1+i);
+      sipTableCache.push({month:k, invested:amt*k, value:val});
+    }
+  }else{
+    maturity = amt * Math.pow(1+rate, yrs);
+    invest = amt;
+    gain = maturity - invest;
+    for(let y=1;y<=yrs;y++){
+      const val = amt * Math.pow(1+rate, y);
+      sipTableCache.push({month:y*12, invested:invest, value:val});
+    }
+  }
+  const wrap = document.getElementById("sipTableWrap");
+  const tbl = document.getElementById("sipTable");
+  wrap.style.display = "block";
+  tbl.innerHTML = "<tr><th>Month</th><th>Invested</th><th>Value</th></tr>";
+  sipTableCache.forEach(r=>{
+    tbl.insertAdjacentHTML("beforeend", `<tr><td>${r.month}</td><td>${r.invested.toFixed(2)}</td><td>${r.value.toFixed(2)}</td></tr>`);
+  });
+
+  const out =
+`Mode: ${mode.toUpperCase()}
+Invested: ₹${invest.toFixed(2)}
+Maturity: ₹${maturity.toFixed(2)}
+Gain: ₹${gain.toFixed(2)}`;
+  document.getElementById("sipOut").textContent = out;
+  pushFin("SIP/Lumpsum", {mode,amt,rate,yrs}, out);
+}
+function exportSIPTableCSV(){
+  if(!sipTableCache.length) return alert("Calculate SIP first");
+  const rows = [["Month","Invested","Value"]];
+  sipTableCache.forEach(r=>rows.push([r.month, r.invested, r.value]));
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  downloadFile(csv, "sip_table.csv", "text/csv");
+}
+function exportSIPTableJSON(){
+  if(!sipTableCache.length) return alert("Calculate SIP first");
+  downloadFile(JSON.stringify(sipTableCache,null,2),"sip_table.json","application/json");
+}
+function importSIPFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        sipTableCache = j;
+        const wrap = document.getElementById("sipTableWrap");
+        const tbl = document.getElementById("sipTable");
+        wrap.style.display = "block";
+        tbl.innerHTML = "<tr><th>Month</th><th>Invested</th><th>Value</th></tr>";
+        sipTableCache.forEach(r=>{
+          tbl.insertAdjacentHTML("beforeend",
+            `<tr><td>${r.month}</td><td>${Number(r.invested).toFixed(2)}</td><td>${Number(r.value).toFixed(2)}</td></tr>`);
+        });
+        alert("Imported SIP table!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+function printSIPTable(){
+  if(!sipTableCache.length) return alert("Calculate SIP first");
+  let html = `<h2>SIP Table</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>Month</th><th>Invested</th><th>Value</th></tr>`;
+  sipTableCache.forEach(r=>{
+    html += `<tr><td>${r.month}</td><td>${r.invested.toFixed(2)}</td><td>${r.value.toFixed(2)}</td></tr>`;
+  });
+  html += "</table>";
+  printHTMLDoc("SIP Table", html);
+}
+
+/* ===================================================================
+   EMI (History + Export/Import)
+=================================================================== */
+let emiTableCache = [];
+let emiHistory = JSON.parse(localStorage.getItem("md_emi_hist")||"[]");
+const emiHistBody = document.querySelector("#emiHistTable tbody");
+function pushEMI(params, emi, months, ti){
+  emiHistory.unshift({params, emi, months, totalInterest:ti, ts:new Date().toISOString()});
+  emiHistory = emiHistory.slice(0,200);
+  localStorage.setItem("md_emi_hist", JSON.stringify(emiHistory));
+  renderEmiHist();
+}
+function renderEmiHist(){
+  emiHistBody.innerHTML = "";
+  emiHistory.forEach((h,i)=>{
+    emiHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${escapeHTML(JSON.stringify(h.params))}</td><td>${Number(h.emi).toFixed(2)}</td><td>${h.months}</td><td>${Number(h.totalInterest).toFixed(2)}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearEmiHistory(){
+  emiHistory = [];
+  localStorage.setItem("md_emi_hist","[]");
+  renderEmiHist();
+}
+renderEmiHist();
+
+function emiPrepayCalc(){
+  const P = parseFloat(document.getElementById("emiP2").value||0);
+  const R = parseFloat(document.getElementById("emiR2").value||0);
+  const T = parseFloat(document.getElementById("emiT2").value||0);
+  const preAmt = parseFloat(document.getElementById("prepayAmt").value||0);
+  const preMonth = parseInt(document.getElementById("prepayMonth").value||0);
+  const show = document.getElementById('emiShowTable2').checked;
+
+  const r = R/12/100;
+  const emi = (P*r*Math.pow(1+r, T)) / (Math.pow(1+r, T) - 1);
+
+  emiTableCache = [];
+  let balance = P;
+  let totalInterest = 0;
+  let m;
+  for(m=1; m<=T; m++){
+    const interest = balance * r;
+    let principal = emi - interest;
+
+    if(preAmt>0 && m === preMonth){
+      balance -= preAmt;
+      if(balance<0) balance=0;
+    }
+
+    if(principal > balance) principal = balance;
+    const closing = balance - principal;
+    totalInterest += interest;
+    emiTableCache.push({month:m, opening:balance.toFixed(2), emi:emi.toFixed(2), interest:interest.toFixed(2), principal:principal.toFixed(2), closing:closing.toFixed(2)});
+    balance = closing;
+    if(balance <= 0.01) break;
+  }
+
+  const totalPaid = emi*m + (preAmt>0?preAmt:0);
+
+  document.getElementById("emiOut2").textContent =
+`EMI: ₹${emi.toFixed(2)}
+Months: ${m}
+Total Interest: ₹${totalInterest.toFixed(2)}
+Total Paid: ₹${totalPaid.toFixed(2)}
+Balance: ₹${balance.toFixed(2)}`;
+
+  const wrap = document.getElementById("emiTableWrap2");
+  const tbl = document.getElementById("emiTable2");
+  if(!show){ wrap.style.display="none"; }
+  else{
+    wrap.style.display="block";
+    tbl.innerHTML = `<tr>
+      <th>Month</th><th>Opening</th><th>EMI</th><th>Interest</th><th>Principal</th><th>Closing</th>
+    </tr>`;
+    emiTableCache.forEach(r=>{
+      tbl.insertAdjacentHTML('beforeend', `<tr>
+      <td>${r.month}</td><td>${r.opening}</td><td>${r.emi}</td><td>${r.interest}</td><td>${r.principal}</td><td>${r.closing}</td>
+    </tr>`);
+    });
+  }
+
+  pushEMI({P,R,T,preAmt,preMonth}, emi, m, totalInterest);
+}
+function exportEmiTableCSV(){
+  if(!emiTableCache.length) return alert("Calculate EMI first");
+  const rows = [["Month","Opening","EMI","Interest","Principal","Closing"]];
+  emiTableCache.forEach(r=>rows.push([r.month, r.opening, r.emi, r.interest, r.principal, r.closing]));
+  const csv = rows.map(r=>r.join(",")).join("\n");
+  downloadFile(csv, "emi_table.csv", "text/csv");
+}
+function exportEmiTableJSON(){
+  if(!emiTableCache.length) return alert("Calculate EMI first");
+  downloadFile(JSON.stringify(emiTableCache,null,2),"emi_table.json","application/json");
+}
+function importEmiFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        emiTableCache = j;
+        const wrap = document.getElementById("emiTableWrap2");
+        const tbl = document.getElementById("emiTable2");
+        wrap.style.display="block";
+        tbl.innerHTML = `<tr>
+          <th>Month</th><th>Opening</th><th>EMI</th><th>Interest</th><th>Principal</th><th>Closing</th>
+        </tr>`;
+        emiTableCache.forEach(r=>{
+          tbl.insertAdjacentHTML('beforeend', `<tr>
+            <td>${r.month}</td><td>${r.opening}</td><td>${r.emi}</td><td>${r.interest}</td><td>${r.principal}</td><td>${r.closing}</td>
+          </tr>`);
+        });
+        alert("EMI schedule imported!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+function printEmiTable(){
+  if(!emiTableCache.length){ alert("Calculate first"); return; }
+  let html = `<h2>EMI Amortization</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>Month</th><th>Opening</th><th>EMI</th><th>Interest</th><th>Principal</th><th>Closing</th></tr>`;
+  emiTableCache.forEach(r=>{
+    html += `<tr><td>${r.month}</td><td>${r.opening}</td><td>${r.emi}</td><td>${r.interest}</td><td>${r.principal}</td><td>${r.closing}</td></tr>`;
+  });
+  html += "</table>";
+  printHTMLDoc("EMI Table", html);
+}
+
+/* ===================================================================
+   Payroll (History + Export/Import)
+=================================================================== */
+let lastPayslip = null;
+let payrollHistory = JSON.parse(localStorage.getItem("md_payroll_hist")||"[]");
+const payrollHistBody = document.querySelector("#payrollHistTable tbody");
+function pushPayroll(p){
+  payrollHistory.unshift({...p, ts:new Date().toISOString()});
+  payrollHistory = payrollHistory.slice(0,200);
+  localStorage.setItem("md_payroll_hist", JSON.stringify(payrollHistory));
+  renderPayrollHist();
+}
+function renderPayrollHist(){
+  payrollHistBody.innerHTML = "";
+  payrollHistory.forEach((r,i)=>{
+    payrollHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${escapeHTML(r.name)}</td><td>${Number(r.gross).toFixed(2)}</td><td>${Number(r.net).toFixed(2)}</td><td>${Number(r.ctc).toFixed(2)}</td><td>${new Date(r.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearPayrollHistory(){
+  payrollHistory = [];
+  localStorage.setItem("md_payroll_hist","[]");
+  renderPayrollHist();
+}
+renderPayrollHist();
+
+function calcPayroll(){
+  const name = document.getElementById("empName").value;
+  const basic = parseFloat(document.getElementById("basicSal").value||0);
+  const hra   = parseFloat(document.getElementById("hra").value||0);
+  const da    = parseFloat(document.getElementById("da").value||0);
+  const other = parseFloat(document.getElementById("otherAllow").value||0);
+  const pfPct = parseFloat(document.getElementById("pfPct").value||12);
+  const pfPctEr = parseFloat(document.getElementById("pfPctEr").value||12);
+  const esicEmp = parseFloat(document.getElementById("esicEmp").value||0.75);
+  const esicEr  = parseFloat(document.getElementById("esicEr").value||3.25);
+
+  const gross = basic + hra + da + other;
+
+  const pfBase = Math.min(basic, 15000);
+  const pfEmp = pfBase * pfPct/100;
+  const pfEmployer = pfBase * pfPctEr/100;
+
+  const esicEmpAmt = gross <= 21000 ? gross * esicEmp/100 : 0;
+  const esicErAmt  = gross <= 21000 ? gross * esicEr /100 : 0;
+
+  const totalDed = pfEmp + esicEmpAmt;
+  const net = gross - totalDed;
+
+  const ctc = gross + pfEmployer + esicErAmt;
+
+  const out = `Employee: ${name}
+Gross: ₹${gross.toFixed(2)}
+PF (Emp): ₹${pfEmp.toFixed(2)}
+ESIC (Emp): ₹${esicEmpAmt.toFixed(2)}
+Net Pay: ₹${net.toFixed(2)}
+Employer PF: ₹${pfEmployer.toFixed(2)}
+Employer ESIC: ₹${esicErAmt.toFixed(2)}
+CTC: ₹${ctc.toFixed(2)}`;
+
+  document.getElementById("payrollOut").textContent = out;
+  lastPayslip = {name, basic, hra, da, other, gross, pfEmp, esicEmpAmt, totalDed, net, pfEmployer, esicErAmt, ctc};
+  pushPayroll(lastPayslip);
+}
+function printPayslip(){
+  if(!lastPayslip) return alert("Calculate payroll first");
+  const p = lastPayslip;
+  let html = `
+    <h2>Payslip - Mohit Donawat Calculator</h2>
+    <p>Employee: <b>${escapeHTML(p.name)}</b></p>
+    <table border="1" cellspacing="0" cellpadding="6">
+    <tr><th>Component</th><th>Amount (₹)</th></tr>
+    <tr><td>Basic</td><td>${p.basic.toFixed(2)}</td></tr>
+    <tr><td>HRA</td><td>${p.hra.toFixed(2)}</td></tr>
+    <tr><td>DA</td><td>${p.da.toFixed(2)}</td></tr>
+    <tr><td>Other Allowances</td><td>${p.other.toFixed(2)}</td></tr>
+    <tr><td><b>Gross</b></td><td>${p.gross.toFixed(2)}</td></tr>
+    <tr><td>PF (Employee)</td><td>${p.pfEmp.toFixed(2)}</td></tr>
+    <tr><td>ESIC (Employee)</td><td>${p.esicEmpAmt.toFixed(2)}</td></tr>
+    <tr><td><b>Net Pay</b></td><td><b>${p.net.toFixed(2)}</b></td></tr>
+    <tr><td>PF (Employer)</td><td>${p.pfEmployer.toFixed(2)}</td></tr>
+    <tr><td>ESIC (Employer)</td><td>${p.esicErAmt.toFixed(2)}</td></tr>
+    <tr><td><b>CTC</b></td><td><b>${p.ctc.toFixed(2)}</b></td></tr>
+    </table>`;
+  printHTMLDoc("Payslip", html);
+}
+function exportPayrollJSON(){
+  if(!lastPayslip) return alert("Calculate payroll first");
+  downloadFile(JSON.stringify(lastPayslip,null,2),"payslip.json","application/json");
+}
+function exportPayrollCSV(){
+  if(!lastPayslip) return alert("Calculate payroll first");
+  const p = lastPayslip;
+  const rows = [
+    ["name","basic","hra","da","other","gross","pfEmp","esicEmp","net","pfEmployer","esicEmployer","ctc"],
+    [p.name, p.basic, p.hra, p.da, p.other, p.gross, p.pfEmp, p.esicEmpAmt, p.net, p.pfEmployer, p.esicErAmt, p.ctc]
+  ];
+  downloadFile(rows.map(r=>r.join(",")).join("\n"), "payslip.csv", "text/csv");
+}
+function importPayrollFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const p = JSON.parse(v.target.result);
+      if(p && typeof p==='object'){
+        lastPayslip = p;
+        document.getElementById("payrollOut").textContent = "Imported Payslip JSON. Use Print to print.";
+        pushPayroll(p);
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+
+/* ===================================================================
+   Currency (History + Export/Import)
+=================================================================== */
+const offlineRates = {
+  USD:{INR:84, EUR:0.93, GBP:0.78, AED:3.67},
+  INR:{USD:0.0119, EUR:0.011, GBP:0.0093, AED:0.044},
+  EUR:{USD:1.07, INR:90, GBP:0.84, AED:3.93},
+  GBP:{USD:1.28, INR:108, EUR:1.19, AED:4.74},
+  AED:{USD:0.272, INR:22.8, EUR:0.254, GBP:0.211}
+};
+const curFrom = document.getElementById('curFrom');
+const curTo   = document.getElementById('curTo');
+(function loadCurrenciesOffline(){
+  ["USD","INR","EUR","GBP","AED"].forEach(c=>{
+    curFrom.appendChild(new Option(c,c));
+    curTo.appendChild(new Option(c,c));
+  });
+  curFrom.value="USD"; curTo.value="INR";
+})();
+let currencyHistory = JSON.parse(localStorage.getItem("md_cur_hist")||"[]");
+const curHistBody = document.querySelector("#curHistTable tbody");
+function pushCur(item){
+  currencyHistory.unshift(item);
+  currencyHistory = currencyHistory.slice(0,300);
+  localStorage.setItem("md_cur_hist", JSON.stringify(currencyHistory));
+  renderCurHist();
+}
+function renderCurHist(){
+  curHistBody.innerHTML = "";
+  currencyHistory.forEach((h,i)=>{
+    curHistBody.insertAdjacentHTML("beforeend",
+     `<tr><td>${i+1}</td><td>${h.from}</td><td>${h.to||h.targets}</td><td>${h.amount}</td><td>${(h.result||"").toString().substring(0,40)}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearCurrencyHistory(){
+  currencyHistory = [];
+  localStorage.setItem("md_cur_hist","[]");
+  renderCurHist();
+}
+renderCurHist();
+
+async function tryLiveSymbols(){
+  const out = document.getElementById('curOut');
+  try{
+    const r = await fetch("https://api.exchangerate.host/symbols");
+    const j = await r.json();
+    if(j && j.symbols){
+      curFrom.innerHTML = curTo.innerHTML = "";
+      Object.keys(j.symbols).sort().forEach(c=>{
+        curFrom.appendChild(new Option(c,c));
+        curTo.appendChild(new Option(c,c));
+      });
+      curFrom.value="USD"; curTo.value="INR";
+      out.textContent = "Live symbols loaded (English) / लोड हो गए (Hindi)";
+    }else{
+      out.textContent = "Failed live; using offline";
+    }
+  }catch(e){
+    out.textContent = "No internet; offline";
+  }
+}
+function swapCurrencies(){ const t = curFrom.value; curFrom.value = curTo.value; curTo.value = t; }
+async function convertCurrency(){
+  const amt = parseFloat(document.getElementById('curAmount').value||0);
+  const from = curFrom.value; const to = curTo.value;
+  const out  = document.getElementById('curOut');
+  if(!amt){ out.textContent="Enter amount"; return; }
+  if(from===to){ out.textContent=`${amt.toFixed(2)} ${to}`; return; }
+  try{
+    const url = `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amt}`;
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw 0;
+    const data = await res.json();
+    const txt = `${amt} ${from} = ${data.result.toFixed(4)} ${to}`;
+    out.textContent = txt + " (Live / लाइव)";
+    pushCur({type:"single", from, to, amount:amt, result:txt, ts:new Date().toISOString()});
+  }catch(e){
+    const rate = offlineRates[from]?.[to];
+    if(rate){
+      const txt = `${amt} ${from} ≈ ${(amt*rate).toFixed(4)} ${to} (Offline)`;
+      out.textContent = txt;
+      pushCur({type:"single-offline", from, to, amount:amt, result:txt, ts:new Date().toISOString()});
+    }else out.textContent = "No offline rate";
+  }
+}
+async function convertMulti(){
+  const amt = parseFloat(document.getElementById('curAmount').value||0);
+  const from = curFrom.value;
+  const targets = document.getElementById('curTargets').value.split(',').map(x=>x.trim().toUpperCase()).filter(Boolean);
+  const out  = document.getElementById('curMultiOut');
+  if(!amt || !targets.length){ out.textContent="Enter amount & targets"; return; }
+  try{
+    const url = `https://api.exchangerate.host/latest?base=${from}`;
+    const res = await fetch(url);
+    if(!res.ok) throw 0;
+    const data = await res.json();
+    let s = `Base: ${from}, Amount: ${amt}\n`;
+    targets.forEach(t=>{
+      if(t===from){ s += `${t}: ${amt}\n`; return; }
+      const r = data.rates[t];
+      if(r){ s += `${t}: ${(amt*r).toFixed(4)}\n`; }
+      else { s += `${t}: (no rate)\n`; }
+    });
+    out.textContent = s;
+    pushCur({type:"multi", from, targets:targets.join(","), amount:amt, result:s, ts:new Date().toISOString()});
+  }catch(e){
+    let s = `Offline Base: ${from}, Amount: ${amt}\n`;
+    targets.forEach(t=>{
+      if(t===from){ s+=`${t}: ${amt}\n`; return; }
+      const r = offlineRates[from]?.[t];
+      if(r){ s+=`${t}: ${(amt*r).toFixed(4)}\n`; }
+      else { s+=`${t}: (no offline rate)\n`; }
+    });
+    out.textContent = s + "\n(Offline)";
+    pushCur({type:"multi-offline", from, targets:targets.join(","), amount:amt, result:s, ts:new Date().toISOString()});
+  }
+}
+function exportCurrencyHistoryJSON(){
+  downloadFile(JSON.stringify(currencyHistory,null,2),"currency_history.json","application/json");
+}
+function exportCurrencyHistoryCSV(){
+  const rows = [["#","Type","From","To/Targets","Amount","Result","Timestamp"]];
+  currencyHistory.forEach((h,i)=>rows.push([i+1,h.type,h.from,h.to || h.targets,h.amount,(h.result||"").replace(/"/g,'""'),h.ts]));
+  downloadFile(rows.map(r=>r.join(",")).join("\n"),"currency_history.csv","text/csv");
+}
+function printCurrencyHistory(){
+  let html = `<h2>Currency History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Type</th><th>From</th><th>To/Targets</th><th>Amount</th><th>Result</th><th>Time</th></tr>`;
+  currencyHistory.forEach((h,i)=>{
+    html += `<tr><td>${i+1}</td><td>${h.type}</td><td>${h.from}</td><td>${h.to||h.targets}</td><td>${h.amount}</td><td>${escapeHTML(h.result)}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("Currency History", html);
+}
+function importCurrencyFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        currencyHistory = j.concat(currencyHistory).slice(0,300);
+        localStorage.setItem("md_cur_hist", JSON.stringify(currencyHistory));
+        renderCurHist();
+        alert("Imported!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+
+/* ===================================================================
+   World Time (History + Export/Import)
+=================================================================== */
+let pins = [];
+let timeHistory = JSON.parse(localStorage.getItem("md_time_hist")||"[]");
+const timeHistBody = document.querySelector("#timeHistTable tbody");
+function pushTime(type,input,output){
+  timeHistory.unshift({type,input,output,ts:new Date().toISOString()});
+  timeHistory=timeHistory.slice(0,200);
+  localStorage.setItem("md_time_hist", JSON.stringify(timeHistory));
+  renderTimeHist();
+}
+function renderTimeHist(){
+  timeHistBody.innerHTML = "";
+  timeHistory.forEach((h,i)=>{
+    timeHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${h.type}</td><td>${escapeHTML(JSON.stringify(h.input))}</td><td>${escapeHTML(h.output.substring(0,120))}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearTimeHistory(){
+  timeHistory = [];
+  localStorage.setItem("md_time_hist","[]");
+  renderTimeHist();
+}
+renderTimeHist();
+
+function compareTimezones(){
+  const z1 = document.getElementById('tz1').value.trim();
+  const z2 = document.getElementById('tz2').value.trim();
+  const out = document.getElementById('tzCompareOut');
+  try{
+    const d1 = new Date();
+    const d2 = new Date();
+    const f1 = new Intl.DateTimeFormat('en-GB', {timeZone:z1, dateStyle:'full', timeStyle:'long'}).format(d1);
+    const f2 = new Intl.DateTimeFormat('en-GB', {timeZone:z2, dateStyle:'full', timeStyle:'long'}).format(d2);
+    const offset1 = tzOffsetString(z1);
+    const offset2 = tzOffsetString(z2);
+    const diff = diffTzHours(z1,z2);
+    const text =
+`${z1}: ${f1} (UTC${offset1})
+${z2}: ${f2} (UTC${offset2})
+Diff: ${diff} hours`;
+    out.textContent = text;
+    pushTime("compare",{z1,z2},text);
+  }catch(e){
+    out.textContent = "Invalid timezone";
+  }
+}
+function tzOffsetString(tz){
+  const now = new Date();
+  const local = new Date(now.toLocaleString('en-US', { timeZone: tz }));
+  const diff = (local - now) / 60000;
+  const sign = diff >= 0 ? "+" : "-";
+  const abs = Math.abs(diff);
+  const hh = String(Math.floor(abs/60)).padStart(2,'0');
+  const mm = String(Math.floor(abs%60)).padStart(2,'0');
+  return `${sign}${hh}:${mm}`;
+}
+function diffTzHours(tz1,tz2){
+  const now = new Date();
+  const t1 = new Date(now.toLocaleString('en-US', { timeZone: tz1 }));
+  const t2 = new Date(now.toLocaleString('en-US', { timeZone: tz2 }));
+  const diffh = (t1 - t2)/3600000;
+  return Math.round(diffh*100)/100;
+}
+function refreshPins(){
+  const box = document.getElementById('pinOut');
+  if(!pins.length){ box.textContent="No pins."; return; }
+  let s = "Pinned:\n";
+  pins.forEach(z=>{
+    try{
+      const d = new Date();
+      const f = new Intl.DateTimeFormat('en-GB', {timeZone:z, dateStyle:'full', timeStyle:'medium'}).format(d);
+      const off = tzOffsetString(z);
+      s += `${z}: ${f} (UTC${off})\n`;
+    }catch(e){
+      s += `${z}: (error)\n`;
+    }
+  });
+  box.textContent = s;
+}
+function pinDefaults(){
+  pins = ["Asia/Kolkata","Europe/London","America/New_York","Asia/Dubai","Asia/Tokyo","Australia/Sydney","Europe/Berlin","Asia/Singapore","America/Los_Angeles","Africa/Johannesburg"];
+  refreshPins();
+}
+function clearPins(){ pins = []; refreshPins(); }
+setInterval(refreshPins, 30000);
+
+function meetingPlanner(){
+  const base = document.getElementById('meetBase').value.trim();
+  const time = document.getElementById('meetTime').value.trim();
+  const zones = document.getElementById('meetZones').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const out = document.getElementById('meetOut');
+  try{
+    const [hh,mm] = time.split(':').map(Number);
+    const baseNow = new Date();
+    baseNow.setHours(hh||0, mm||0, 0, 0);
+    const baseUTC = new Date(baseNow.toLocaleString('en-US', { timeZone: 'UTC' }));
+    let s = `Base (${base}) ${time}\n`;
+    zones.forEach(z=>{
+      try{
+        const at = new Date(baseUTC.getTime() + tzMs(z));
+        s += `${z}: ${at.toTimeString().slice(0,5)}\n`;
+      }catch(e){
+        s += `${z}: (error)\n`;
+      }
+    });
+    out.textContent = s;
+    pushTime("meeting",{base,time,zones},s);
+  }catch(e){
+    out.textContent = "Error";
+  }
+}
+function tzMs(tz){
+  const now = new Date();
+  const local = new Date(now.toLocaleString('en-US', { timeZone: tz }));
+  const diff = local - now;
+  return diff;
+}
+function exportTimeHistoryJSON(){
+  downloadFile(JSON.stringify(timeHistory,null,2),"time_history.json","application/json");
+}
+function exportTimeHistoryCSV(){
+  const rows = [["#","Type","Input","Output","Timestamp"]];
+  timeHistory.forEach((h,i)=>rows.push([i+1,h.type,JSON.stringify(h.input).replace(/"/g,'""'),(h.output||"").replace(/"/g,'""'),h.ts]));
+  downloadFile(rows.map(r=>r.join(",")).join("\n"),"time_history.csv","text/csv");
+}
+function printTimeHistory(){
+  let html = `<h2>World Time History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr>`;
+  timeHistory.forEach((h,i)=>{
+    html += `<tr><td>${i+1}</td><td>${h.type}</td><td>${escapeHTML(JSON.stringify(h.input))}</td><td>${escapeHTML(h.output)}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("World Time History", html);
+}
+function importTimeFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        timeHistory = j.concat(timeHistory).slice(0,200);
+        localStorage.setItem("md_time_hist", JSON.stringify(timeHistory));
+        renderTimeHist();
+        alert("Imported!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+
+/* ===================================================================
+   Age / Dates (History + Export/Import)
+=================================================================== */
+let ageHistory = JSON.parse(localStorage.getItem("md_age_hist")||"[]");
+const ageHistBody = document.querySelector("#ageHistTable tbody");
+function pushAge(type,input,output){
+  ageHistory.unshift({type,input,output,ts:new Date().toISOString()});
+  ageHistory = ageHistory.slice(0,300);
+  localStorage.setItem("md_age_hist", JSON.stringify(ageHistory));
+  renderAgeHist();
+}
+function renderAgeHist(){
+  ageHistBody.innerHTML = "";
+  ageHistory.forEach((h,i)=>{
+    ageHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${h.type}</td><td>${escapeHTML(JSON.stringify(h.input))}</td><td>${escapeHTML((h.output||"").substring(0,120))}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearAgeHistory(){
+  ageHistory = [];
+  localStorage.setItem("md_age_hist","[]");
+  renderAgeHist();
+}
+renderAgeHist();
+
+function calcAge(){
+  const dob = document.getElementById('dob').value;
+  const out = document.getElementById('ageOut');
+  if(!dob){ out.textContent="Enter DOB"; return; }
+  const birth = new Date(dob);
+  const now = new Date();
+
+  const diffms = now - birth;
+  const seconds = Math.floor(diffms/1000);
+  const minutes = Math.floor(seconds/60);
+  const hours   = Math.floor(minutes/60);
+  const days    = Math.floor(hours/24);
+
+  let y = now.getFullYear() - birth.getFullYear();
+  let m = now.getMonth() - birth.getMonth();
+  let d = now.getDate()  - birth.getDate();
+  if(d < 0){
+    m--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    d += prevMonth;
+  }
+  if(m < 0){
+    y--;
+    m += 12;
+  }
+
+  let nextB = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+  if(nextB < now) nextB = new Date(now.getFullYear()+1, birth.getMonth(), birth.getDate());
+  const daysToNext = Math.ceil((nextB - now)/(1000*60*60*24));
+
+  const text =
+`Age: ${y}y ${m}m ${d}d
+Total: ${days} days | ${hours} hours | ${minutes} minutes | ${seconds} seconds
+Next Birthday: ${daysToNext} days`;
+  out.textContent = text;
+  pushAge("age-now",{dob},text);
+}
+function futureAge(){
+  const dob = document.getElementById('dob').value;
+  const fd  = document.getElementById('futureDate').value;
+  const out = document.getElementById('ageOut');
+  if(!dob || !fd){ out.textContent="Pick DOB & future date"; return; }
+  const b = new Date(dob);
+  const f = new Date(fd);
+  if(f < b){ out.textContent="Future date must be after DOB"; return; }
+  const r = richDiff(b,f);
+  const text = `On ${f.toDateString()}: ${r.y}y ${r.m}m ${r.d}d ${r.h}h ${r.mi}m ${r.s}s`;
+  out.textContent = text;
+  pushAge("age-future",{dob,fd},text);
+}
+function richDiff(a,b){
+  if(a>b){const t=a;a=b;b=t;}
+  let y = b.getFullYear() - a.getFullYear();
+  let m = b.getMonth() - a.getMonth();
+  let d = b.getDate() - a.getDate();
+  let h = b.getHours() - a.getHours();
+  let mi = b.getMinutes() - a.getMinutes();
+  let s = b.getSeconds() - a.getSeconds();
+  if(s<0){ mi--; s+=60; }
+  if(mi<0){ h--; mi+=60; }
+  if(h<0){ d--; h+=24; }
+  if(d<0){ m--; d+= new Date(b.getFullYear(), b.getMonth(), 0).getDate(); }
+  if(m<0){ y--; m+=12; }
+  const totalms = b - a;
+  const totalDays = Math.floor(totalms/86400000);
+  const totalHours = Math.floor(totalms/3600000);
+  const totalMinutes = Math.floor(totalms/60000);
+  const totalSeconds = Math.floor(totalms/1000);
+  return {y,m,d,h,mi,s,totalDays,totalHours,totalMinutes,totalSeconds};
+}
+let countInterval;
+function dateDiff(){
+  const d1 = document.getElementById('d1').value;
+  const d2 = document.getElementById('d2').value;
+  const out = document.getElementById('diffOut');
+  if(!d1 || !d2){ out.textContent="Select both dates"; return; }
+  const a = new Date(d1), b = new Date(d2);
+  const dd = richDiff(a,b);
+  const text =
+`${dd.y}y ${dd.m}m ${dd.d}d ${dd.h}h ${dd.mi}m ${dd.s}s
+Total: ${dd.totalDays} days | ${dd.totalHours} h | ${dd.totalMinutes} m | ${dd.totalSeconds} s`;
+  out.textContent = text;
+  pushAge("date-diff",{d1,d2},text);
+}
+function countdown(){
+  const d2 = document.getElementById('d2').value;
+  const out = document.getElementById('diffOut');
+  if(!d2){ out.textContent="Pick 'To' date"; return; }
+  if(countInterval) clearInterval(countInterval);
+  function tick(){
+    const now = new Date();
+    const end = new Date(d2);
+    const ms = end - now;
+    if(ms <= 0){ out.textContent = "Time up!"; clearInterval(countInterval); return; }
+    const r = richDiff(now,end);
+    out.textContent = `Left: ${r.y}y ${r.m}m ${r.d}d ${r.h}h ${r.mi}m ${r.s}s   (${r.totalDays} days)`;
+  }
+  tick();
+  countInterval = setInterval(tick, 1000);
+}
+function exportAgeHistoryJSON(){
+  downloadFile(JSON.stringify(ageHistory,null,2),"age_history.json","application/json");
+}
+function exportAgeHistoryCSV(){
+  const rows = [["#","Type","Input","Output","Timestamp"]];
+  ageHistory.forEach((h,i)=>rows.push([i+1,h.type,JSON.stringify(h.input).replace(/"/g,'""'),(h.output||"").replace(/"/g,'""'),h.ts]));
+  downloadFile(rows.map(r=>r.join(",")).join("\n"),"age_history.csv","text/csv");
+}
+function printAgeHistory(){
+  let html = `<h2>Age/Date History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Type</th><th>Input</th><th>Output</th><th>Time</th></tr>`;
+  ageHistory.forEach((h,i)=>{
+    html += `<tr><td>${i+1}</td><td>${h.type}</td><td>${escapeHTML(JSON.stringify(h.input))}</td><td>${escapeHTML(h.output)}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("Age/Date History", html);
+}
+function importAgeFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        ageHistory = j.concat(ageHistory).slice(0,300);
+        localStorage.setItem("md_age_hist", JSON.stringify(ageHistory));
+        renderAgeHist();
+        alert("Imported!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+
+/* ===================================================================
+   Units (History + Export/Import)
+=================================================================== */
+let unitHistory = JSON.parse(localStorage.getItem("md_unit_hist")||"[]");
+const unitHistBody = document.querySelector("#unitHistTable tbody");
+function pushUnit(cat, val, from, to, result){
+  unitHistory.unshift({cat,val,from,to,result,ts:new Date().toISOString()});
+  unitHistory=unitHistory.slice(0,300);
+  localStorage.setItem("md_unit_hist", JSON.stringify(unitHistory));
+  renderUnitHist();
+}
+function renderUnitHist(){
+  unitHistBody.innerHTML = "";
+  unitHistory.forEach((h,i)=>{
+    unitHistBody.insertAdjacentHTML("beforeend",
+      `<tr><td>${i+1}</td><td>${h.cat}</td><td>${h.val}</td><td>${h.from}→${h.to}</td><td>${h.result.toFixed ? h.result.toFixed(6) : h.result}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`
+    );
+  });
+}
+function clearUnitHistory(){
+  unitHistory = [];
+  localStorage.setItem("md_unit_hist","[]");
+  renderUnitHist();
+}
+renderUnitHist();
+
+const unitCategory = document.getElementById('unitCategory');
+const unitFrom = document.getElementById('unitFrom');
+const unitTo   = document.getElementById('unitTo');
+const unitValue= document.getElementById('unitValue');
+const unitOut  = document.getElementById('unitOut');
+const unitTableWrap = document.getElementById('unitTableWrap');
+const unitTable = document.getElementById('unitTable');
+
+const UNITS = {
+  length : {base:'m',
+    list:{ m:1, cm:0.01, mm:0.001, km:1000, inch:0.0254, ft:0.3048, yard:0.9144, mile:1609.344 }
+  },
+  area: {base:'m2',
+    list:{ 'm2':1, 'cm2':0.0001, 'ft2':0.09290304, 'in2':0.00064516, 'acre':4046.8564224, 'hectare':10000 }
+  },
+  weight:{base:'kg',
+    list:{ kg:1, g:0.001, mg:0.000001, lb:0.45359237, oz:0.028349523125 }
+  },
+  temp:{base:'C',
+    list:{C:'Celsius', F:'Fahrenheit', K:'Kelvin'}
+  },
+  volume:{base:'L',
+    list:{ L:1, m3:1000, ml:0.001, gallon_us:3.785411784, pint_us:0.473176473 }
+  },
+  speed:{base:'mps',
+    list:{ 'm/s':1, 'km/h':0.2777777778, 'mph':0.44704, 'knot':0.514444 }
+  },
+  data:{base:'B',
+    list:{B:1, KB:1024, MB:1024**2, GB:1024**3, TB:1024**4}
+  },
+  pressure:{base:'Pa',
+    list:{Pa:1, kPa:1000, bar:100000, atm:101325, psi:6894.75729}
+  },
+  fuel:{base:'kmpl',
+    list:{kmpl:1, l100km:0.01, mpg_us:0.4251437075}
+  },
+  bigha:{base:'acre',
+    list:{ bigha:'bigha', acre:'acre' }
+  }
+};
+const categoryList = [
+  {key:'length', name:'Length'},
+  {key:'area', name:'Area'},
+  {key:'bigha', name:'Bigha↔Acre'},
+  {key:'weight', name:'Weight'},
+  {key:'temp', name:'Temperature'},
+  {key:'volume', name:'Volume'},
+  {key:'speed', name:'Speed'},
+  {key:'data', name:'Data (KB/MB/GB)'},
+  {key:'pressure', name:'Pressure'},
+  {key:'fuel', name:'Fuel Efficiency'}
+];
+(function initUnits(){
+  categoryList.forEach(c=> unitCategory.add(new Option(c.name, c.key)));
+  unitCategory.value="length";
+  populateUnits();
+})();
+unitCategory.addEventListener('change', populateUnits);
+function populateUnits(){
+  const cat = unitCategory.value;
+  unitFrom.innerHTML = unitTo.innerHTML = "";
+  const cfg = UNITS[cat];
+  Object.keys(cfg.list).forEach(u=>{
+    unitFrom.add(new Option(u,u));
+    unitTo.add(new Option(u,u));
+  });
+  if(cat==='length'){ unitFrom.value='m'; unitTo.value='ft'; }
+  if(cat==='area'){ unitFrom.value='m2'; unitTo.value='acre'; }
+  if(cat==='weight'){ unitFrom.value='kg'; unitTo.value='lb'; }
+  if(cat==='temp'){ unitFrom.value='C'; unitTo.value='F'; }
+  if(cat==='volume'){ unitFrom.value='L'; unitTo.value='m3'; }
+  if(cat==='speed'){ unitFrom.value='km/h'; unitTo.value='m/s'; }
+  if(cat==='data'){ unitFrom.value='MB'; unitTo.value='GB'; }
+  if(cat==='pressure'){ unitFrom.value='Pa'; unitTo.value='bar'; }
+  if(cat==='fuel'){ unitFrom.value='kmpl'; unitTo.value='l100km'; }
+  if(cat==='bigha'){ unitFrom.value='bigha'; unitTo.value='acre'; }
+  unitTableWrap.style.display="none";
+}
+function swapUnits(){
+  const f = unitFrom.value, t = unitTo.value;
+  unitFrom.value = t; unitTo.value = f;
+}
+function convertUnit(){
+  const cat = unitCategory.value;
+  const val = parseFloat(unitValue.value||0);
+  const from = unitFrom.value;
+  const to   = unitTo.value;
+  if(isNaN(val)){ unitOut.textContent="Invalid value"; return; }
+  if(cat==='temp'){
+    const res = convertTemp(from,to,val);
+    unitOut.textContent = bi(val, from, res, to);
+    pushUnit(cat, val, from, to, res);
+    return;
+  }
+  if(cat==='fuel'){
+    const res = convertFuel(from,to,val);
+    unitOut.textContent = bi(val, from, res, to);
+    pushUnit(cat, val, from, to, res);
+    return;
+  }
+  if(cat==='bigha'){
+    const res = convertBigha(val, from, to);
+    unitOut.textContent = bi(val, from, res, to) + "\n(State wise varies)";
+    pushUnit(cat, val, from, to, res);
+    return;
+  }
+  const map = UNITS[cat].list;
+  const toBase = val * map[from];
+  const outv = toBase / map[to];
+  unitOut.textContent = bi(val, from, outv, to);
+  pushUnit(cat, val, from, to, outv);
+}
+function bi(v, f, o, t){ return `${v} ${f} = ${o.toFixed(6)} ${t}`; }
+function convertTemp(f,t,v){
+  let C;
+  if(f==="C") C=v; else if(f==="F") C=(v-32)*5/9; else C=v-273.15;
+  let out;
+  if(t==="C") out=C; else if(t==="F") out=C*9/5+32; else out=C+273.15;
+  return out;
+}
+function convertFuel(f,t,v){
+  let kmpl;
+  if(f==='kmpl') kmpl=v;
+  else if(f==='l100km') kmpl = 100 / v;
+  else if(f==='mpg_us') kmpl = v * 0.4251437075;
+
+  if(t==='kmpl') return kmpl;
+  else if(t==='l100km') return 100 / kmpl;
+  else if(t==='mpg_us') return kmpl / 0.4251437075;
+}
+function convertBigha(val, from, to){
+  const factor = 0.625; // Rajasthan example
+  if(from==='bigha' && to==='acre') return val*factor;
+  if(from==='acre' && to==='bigha') return val/factor;
+  return val;
+}
+function bighaQuickTable(){
+  const v = parseFloat(unitValue.value||1);
+  const states = [
+    {state:'Rajasthan', b2a:0.625},
+    {state:'UP/Uttarakhand', b2a:0.25},
+    {state:'Himachal', b2a:0.20},
+    {state:'Madhya Pradesh', b2a:0.27},
+    {state:'Punjab/Haryana', b2a:0.40},
+    {state:'Bihar/West Bengal', b2a:0.33}
+  ];
+  unitTableWrap.style.display = "block";
+  unitTable.innerHTML = "<tr><th>State</th><th>Bigha → Acre</th><th>Your Value (Acre)</th></tr>";
+  states.forEach(s=>{
+    const acres = v * s.b2a;
+    unitTable.insertAdjacentHTML("beforeend",
+      `<tr><td>${s.state}</td><td>1 = ${s.b2a}</td><td>${v} = ${acres.toFixed(4)}</td></tr>`
+    );
+  });
+}
+function exportUnitHistoryJSON(){
+  downloadFile(JSON.stringify(unitHistory,null,2),"units_history.json","application/json");
+}
+function exportUnitHistoryCSV(){
+  const rows = [["#","Cat","Value","From","To","Result","Timestamp"]];
+  unitHistory.forEach((h,i)=>rows.push([i+1,h.cat,h.val,h.from,h.to,h.result,h.ts]));
+  downloadFile(rows.map(r=>r.join(",")).join("\n"),"units_history.csv","text/csv");
+}
+function printUnitHistory(){
+  let html = `<h2>Units History</h2><table border="1" cellspacing="0" cellpadding="4"><tr><th>#</th><th>Cat</th><th>Value</th><th>From</th><th>To</th><th>Result</th><th>Time</th></tr>`;
+  unitHistory.forEach((h,i)=>{
+    html += `<tr><td>${i+1}</td><td>${h.cat}</td><td>${h.val}</td><td>${h.from}</td><td>${h.to}</td><td>${h.result}</td><td>${new Date(h.ts).toLocaleString()}</td></tr>`;
+  });
+  html += `</table>`;
+  printHTMLDoc("Unit History", html);
+}
+function importUnitFile(e){
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = v=>{
+    try{
+      const j = JSON.parse(v.target.result);
+      if(Array.isArray(j)){
+        unitHistory = j.concat(unitHistory).slice(0,300);
+        localStorage.setItem("md_unit_hist", JSON.stringify(unitHistory));
+        renderUnitHist();
+        alert("Imported!");
+      } else throw 0;
+    }catch(_){ alert("Invalid JSON"); }
+  };
+  reader.readAsText(f);
+}
+</script>
+</body>
+</html>
